@@ -1,8 +1,8 @@
 name: Test
-on:
-  push:
-    paths:
-      - "strikeout/*"
+on: push
+  #push:
+  #  paths:
+  #    - "strikeout/*"
   
 jobs:
   test:
@@ -20,7 +20,8 @@ jobs:
       - name: Run cargo test
         uses: actions-rs/cargo@v1
         with:
-          command: test --manifest-path=strikeout/Cargo.toml
+          command: test
+          args: --manifest-path=strikeout/Cargo.toml
 
   clippy:
     name: Clippy
@@ -39,7 +40,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings --manifest-path=strikeout/Cargo.toml
+          args: --manifest-path=strikeout/Cargo.toml -- -D warnings
 
   rustfmt:
     name: Format
@@ -60,4 +61,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all -- --check --manifest-path=strikeout/Cargo.toml
+          args: --manifest-path=strikeout/Cargo.toml -- --check 
