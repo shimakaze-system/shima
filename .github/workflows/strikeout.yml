@@ -1,4 +1,4 @@
-name: Test
+name: Strikeout
 on:
   push:
     paths:
@@ -6,7 +6,7 @@ on:
   
 jobs:
   test:
-    name: strikeout/test
+    name: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -24,7 +24,7 @@ jobs:
           args: --manifest-path=strikeout/Cargo.toml
 
   clippy:
-    name: strikeout/clippy
+    name: clippy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -43,7 +43,7 @@ jobs:
           args: --manifest-path=strikeout/Cargo.toml -- -D warnings
 
   rustfmt:
-    name: strikeout/format
+    name: format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources

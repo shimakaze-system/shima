@@ -1,4 +1,4 @@
-name: Test
+name: Seiran
 on:
   push:
     paths:
@@ -6,7 +6,7 @@ on:
   
 jobs:
   test:
-    name: seiran/test
+    name: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -24,7 +24,7 @@ jobs:
           args: --manifest-path=seiran/Cargo.toml
 
   clippy:
-    name: seiran/clippy
+    name: clippy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -43,7 +43,7 @@ jobs:
           args: --manifest-path=seiran/Cargo.toml -- -D warnings
 
   rustfmt:
-    name: seiran/format
+    name: format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
