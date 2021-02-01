@@ -1,6 +1,8 @@
+#![feature(bool_to_option)]
 mod config;
-mod datebase;
+mod database;
 mod download;
+pub mod meta;
 
 const APPLICATION: &str = "seiran";
 
