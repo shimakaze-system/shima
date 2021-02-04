@@ -7,6 +7,10 @@ fn cache_dir<'a>() -> Cow<'a, path::Path> {
     dirs::cache_dir().expect("No XDG_CACHE_HOME setted.").into()
 }
 
+fn data_dir<'a>() -> Cow<'a, path::Path> {
+    dirs::data_dir().expect("No XDG_CACHE_HOME setted.").into()
+}
+
 #[derive(Deserialize)]
 pub struct Config<'a> {
     /// https://storage.googleapis.com/storage/v1/
@@ -16,11 +20,17 @@ pub struct Config<'a> {
     /// default to XDG_CACHE_HOME
     #[serde(default = "cache_dir")]
     cache_dir: Cow<'a, path::Path>,
+    #[serde(default = "data_dir")]
+    data_dir: Cow<'a, path::Path>,
 }
 
 impl<'a> Config<'a> {
     pub fn cache_dir(&self) -> Cow<'a, path::Path> {
         self.cache_dir.join(APPLICATION).into()
+    }
+
+    pub fn data_dir(&self) -> Cow<'a, path::Path> {
+        self.data_dir.join(APPLICATION).into()
     }
 
     pub fn list_api(self) -> Cow<'a, str> {

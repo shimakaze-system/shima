@@ -1,5 +1,12 @@
+use anyhow::Result;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{borrow::Cow, cmp, collections::HashMap, fmt::Display, ops::Sub, str::FromStr};
+use std::{
+    cmp,
+    collections::HashMap,
+    fmt::Display,
+    ops::{Deref, Sub},
+    str::FromStr,
+};
 
 fn deserialize_number_from_string<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
@@ -22,37 +29,31 @@ where
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct Meta<'a> {
-    #[serde(borrow)]
-    name: Cow<'a, str>,
-    #[serde(borrow)]
-    media_link: Cow<'a, str>,
-    #[serde(borrow)]
-    id: Cow<'a, str>,
-    #[serde(borrow)]
-    md5_hash: Cow<'a, str>,
+pub struct Meta {
+    pub name: String,
+    pub media_link: String,
+    pub id: String,
+    pub md5_hash: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    size: u32,
+    pub size: u32,
 }
 
-impl<'a> cmp::PartialEq for Meta<'a> {
+impl cmp::PartialEq for Meta {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
 }
 
-impl<'a> cmp::Eq for Meta<'a> {}
+impl cmp::Eq for Meta {}
 
 #[derive(Deserialize)]
-struct ListObjects<'a> {
-    #[serde(borrow)]
-    items: Vec<Meta<'a>>,
+struct ListObjects {
+    items: Vec<Meta>,
 }
 
-impl<'a> From<ListObjects<'a>> for MetaTable<'a> {
-    fn from(input: ListObjects<'a>) -> MetaTable<'a> {
-        let items: HashMap<Cow<'a, str>, Meta<'a>> =
-            input.items.into_iter().map(|meta| (meta.id.clone(), meta)).collect();
+impl From<ListObjects> for MetaTable {
+    fn from(input: ListObjects) -> MetaTable {
+        let items: HashMap<String, Meta> = input.items.into_iter().map(|meta| (meta.id.clone(), meta)).collect();
         Self {
             items,
             update_at: chrono::offset::Local::now().to_rfc3339().into(),
@@ -62,14 +63,13 @@ impl<'a> From<ListObjects<'a>> for MetaTable<'a> {
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(from = "ListObjects")]
-pub struct MetaTable<'a> {
-    items: HashMap<Cow<'a, str>, Meta<'a>>,
-    #[serde(borrow)]
-    update_at: Cow<'a, str>,
+pub struct MetaTable {
+    items: HashMap<String, Meta>,
+    update_at: String,
 }
 
-impl<'a> Sub for MetaTable<'a> {
-    type Output = Vec<Meta<'a>>;
+impl Sub for MetaTable {
+    type Output = Vec<Meta>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         self.items
@@ -77,6 +77,10 @@ impl<'a> Sub for MetaTable<'a> {
             .filter_map(|(id, meta)| (!rhs.items.contains_key(&id)).then_some(meta))
             .collect()
     }
+}
+
+pub async fn fetch(uri: String) -> Result<MetaTable> {
+    Ok(reqwest::get(uri.deref()).await?.json().await?)
 }
 
 #[cfg(test)]

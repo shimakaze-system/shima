@@ -1,6 +1,6 @@
-#![feature(bool_to_option)]
+#![feature(bool_to_option, with_options)]
 mod config;
-mod database;
+pub mod database;
 mod download;
 pub mod meta;
 
