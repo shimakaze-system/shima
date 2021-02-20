@@ -48,6 +48,7 @@ impl<'a> Config<'a> {
         dirs::config_dir()
             .expect("No XDG_CONFIG_HOME setted.")
             .join(APPLICATION)
+            .join("config.toml")
             .into()
     }
 }
