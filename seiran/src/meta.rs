@@ -1,6 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{
+    borrow::Cow,
     cmp,
     collections::HashMap,
     fmt::Display,
@@ -27,7 +28,7 @@ where
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Meta {
     pub name: String,
@@ -61,7 +62,7 @@ impl From<ListObjects> for MetaTable {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(from = "ListObjects")]
 pub struct MetaTable {
     items: HashMap<String, Meta>,
@@ -79,8 +80,8 @@ impl Sub for MetaTable {
     }
 }
 
-pub async fn fetch(uri: String) -> Result<MetaTable> {
-    Ok(reqwest::get(uri.deref()).await?.json().await?)
+pub async fn fetch(uri: &str) -> Result<MetaTable> {
+    Ok(reqwest::get(uri).await?.json().await?)
 }
 
 #[cfg(test)]
