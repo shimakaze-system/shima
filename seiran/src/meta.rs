@@ -69,6 +69,15 @@ pub struct MetaTable {
     update_at: String,
 }
 
+impl Default for MetaTable {
+    fn default() -> Self {
+        Self {
+            items: HashMap::new(),
+            update_at: chrono::offset::Local::now().to_rfc3339().into(),
+        }
+    }
+}
+
 impl Sub for MetaTable {
     type Output = Vec<Meta>;
 
@@ -80,7 +89,7 @@ impl Sub for MetaTable {
     }
 }
 
-pub async fn fetch(uri: &str) -> Result<MetaTable> {
+pub async fn fetch<'a>(uri: &str) -> Result<Cow<'a, MetaTable>> {
     Ok(reqwest::get(uri).await?.json().await?)
 }
 
