@@ -4,7 +4,7 @@ use std::{borrow::Cow, fs, path};
 
 const DB: &str = "data.json";
 
-pub fn load<'a>(data_dir: Cow<'a, path::Path>) -> Result<MetaTable> {
+pub fn load<'a>(data_dir: Cow<'a, path::Path>) -> Result<Cow<'a, MetaTable>> {
     let db_path = data_dir.join(DB);
     let db = fs::File::open(db_path)?;
     Ok(serde_json::from_reader(&db)?)
