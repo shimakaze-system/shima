@@ -1,13 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{
-    borrow::Cow,
-    cmp,
-    collections::HashMap,
-    fmt::Display,
-    ops::{Deref, Sub},
-    str::FromStr,
-};
+use std::{borrow::Cow, cmp, collections::HashMap, fmt::Display, ops::Sub, str::FromStr};
 
 fn deserialize_number_from_string<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
@@ -39,6 +32,12 @@ pub struct Meta {
     pub size: u32,
 }
 
+impl Meta {
+    pub fn name(&self) -> String {
+        self.name.split('/').last().unwrap_or_default().to_owned()
+    }
+}
+
 impl cmp::PartialEq for Meta {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
@@ -54,9 +53,8 @@ struct ListObjects {
 
 impl From<ListObjects> for MetaTable {
     fn from(input: ListObjects) -> MetaTable {
-        let items: HashMap<String, Meta> = input.items.into_iter().map(|meta| (meta.id.clone(), meta)).collect();
         Self {
-            items,
+            items: input.items,
             update_at: chrono::offset::Local::now().to_rfc3339().into(),
         }
     }
@@ -65,14 +63,14 @@ impl From<ListObjects> for MetaTable {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(from = "ListObjects")]
 pub struct MetaTable {
-    items: HashMap<String, Meta>,
+    items: Vec<Meta>,
     update_at: String,
 }
 
 impl Default for MetaTable {
     fn default() -> Self {
         Self {
-            items: HashMap::new(),
+            items: Vec::new(),
             update_at: chrono::offset::Local::now().to_rfc3339().into(),
         }
     }
@@ -84,7 +82,7 @@ impl Sub for MetaTable {
     fn sub(self, rhs: Self) -> Self::Output {
         self.items
             .into_iter()
-            .filter_map(|(id, meta)| (!rhs.items.contains_key(&id)).then_some(meta))
+            .filter_map(|meta| (!rhs.items.contains(&meta)).then_some(meta))
             .collect()
     }
 }

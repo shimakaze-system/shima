@@ -7,3 +7,4 @@ pub mod meta;
 const APPLICATION: &str = "seiran";
 
 pub use config::Config;
+pub use download::download;
