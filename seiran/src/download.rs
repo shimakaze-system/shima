@@ -1,13 +1,14 @@
 use crate::meta;
 use colored::*;
 use futures_util::StreamExt;
-use std::{borrow::Cow, fs, io::prelude::*, os::unix::fs::PermissionsExt, path};
+use std::{borrow::Cow, fs, io, io::prelude::*, os::unix::fs::PermissionsExt, path};
 
 pub async fn download(target: &meta::Meta, desc: Cow<'_, path::Path>) -> anyhow::Result<fs::File> {
     // create cache dir
     fs::create_dir_all(desc.clone()).ok();
     let name = target.name();
     print!("Downloading {}...", name.cyan());
+    io::stdout().flush().unwrap();
     let res = reqwest::get(&target.media_link).await?;
     let desc = desc.join(&name);
 

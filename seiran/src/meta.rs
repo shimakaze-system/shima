@@ -1,6 +1,7 @@
 use anyhow::Result;
+use colored::Colorize;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{borrow::Cow, cmp, fmt::Display, ops::Sub, str::FromStr};
+use std::{borrow::Cow, cmp, fmt::Display, io, io::Write, ops::Sub, str::FromStr};
 
 fn deserialize_number_from_string<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
@@ -88,7 +89,11 @@ impl Sub for MetaTable {
 }
 
 pub async fn fetch<'a>(uri: &str) -> Result<Cow<'a, MetaTable>> {
-    Ok(reqwest::get(uri).await?.json().await?)
+    print!("Fetch meta...");
+    io::stdout().flush().unwrap();
+    let res = reqwest::get(uri).await?.json().await?;
+    println!("{}", "OK".green());
+    Ok(res)
 }
 
 #[cfg(test)]

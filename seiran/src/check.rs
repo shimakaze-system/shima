@@ -3,10 +3,11 @@ use colored::Colorize;
 use md5::Digest;
 use std::{
     fs, io,
-    io::{Seek, SeekFrom},
+    io::{Seek, SeekFrom, Write},
 };
 pub fn check_md5_sum(mut file: fs::File, meta: &meta::Meta) -> anyhow::Result<bool> {
     print!("Check {}...", meta.name().cyan());
+    io::stdout().flush().unwrap();
     let mut hasher = md5::Md5::new();
     file.seek(SeekFrom::Start(0))?;
     io::copy(&mut file, &mut hasher)?;
