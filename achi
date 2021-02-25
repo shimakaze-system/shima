@@ -1,0 +1,4 @@
+#!/usr/bin/zsh
+cp /usr/local/bin/seiran /tmp/seiran
+/tmp/seiran
+rm /tmp/seiran
