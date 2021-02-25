@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{borrow::Cow, cmp, collections::HashMap, fmt::Display, ops::Sub, str::FromStr};
+use std::{borrow::Cow, cmp, fmt::Display, ops::Sub, str::FromStr};
 
 fn deserialize_number_from_string<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
@@ -55,7 +55,7 @@ impl From<ListObjects> for MetaTable {
     fn from(input: ListObjects) -> MetaTable {
         Self {
             items: input.items,
-            update_at: chrono::offset::Local::now().to_rfc3339().into(),
+            update_at: chrono::offset::Local::now().to_rfc3339(),
         }
     }
 }
@@ -71,7 +71,7 @@ impl Default for MetaTable {
     fn default() -> Self {
         Self {
             items: Vec::new(),
-            update_at: chrono::offset::Local::now().to_rfc3339().into(),
+            update_at: chrono::offset::Local::now().to_rfc3339(),
         }
     }
 }
