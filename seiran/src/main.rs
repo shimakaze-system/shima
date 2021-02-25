@@ -1,24 +1,48 @@
-use seiran::{database, download, meta, Config};
+use colored::Colorize;
+use seiran::{check_md5_sum, database, download, install, meta, Config};
+
+fn err_log(e: anyhow::Error) -> anyhow::Error {
+    println!("{}\n{} {}", "Failed".red(), e, e.backtrace());
+    e
+}
 
 async fn run(config: Config<'static>) -> anyhow::Result<()> {
     let data_dir = config.data_dir();
     let cache_dir = config.cache_dir();
     let install_dir = config.install_dir();
+    println!(
+        "{}\ndata: {}\ncache: {}\ninstall: {}",
+        "::<> Check config.".blue(),
+        data_dir.to_string_lossy().cyan(),
+        cache_dir.to_string_lossy().cyan(),
+        install_dir.to_string_lossy().cyan()
+    );
     let prev = database::load(data_dir.clone()).unwrap_or_default();
     let uri = config.list_api();
     let data = meta::fetch(uri.as_ref()).await?;
     let delta = data.clone().into_owned() - prev;
-    for meta in delta.iter() {
-        download(meta, cache_dir.clone()).await?;
+    if delta.is_empty() {
+        println!("{}", "No update.".green());
+    } else {
+        println!("{}", "::<> Seiran.".blue());
     }
-    // check checksum
-    // move(cache_dir, install_dir);
+    for meta in delta.iter() {
+        let file = download(meta, cache_dir.clone()).await.map_err(err_log)?;
+        if !check_md5_sum(file, &meta).map_err(err_log)? {
+            println!("{}", "Exited".red());
+            return Err(anyhow::Error::msg("Check_sum failed."));
+        }
+        install(&meta, cache_dir.clone(), install_dir.clone()).map_err(err_log)?;
+    }
     database::save(data_dir.clone(), data)?;
     Ok(())
 }
 
 fn main() -> anyhow::Result<()> {
-    let config = Config::from_file(Config::default_config_path())?;
+    let default_path = Config::default_config_path();
+    print!("Load config from {}...", default_path.to_string_lossy().cyan());
+    let config = Config::from_file(default_path).map_err(err_log)?;
+    println!("{}", "OK".green());
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(run(config))?;
     Ok(())
