@@ -1,5 +1,8 @@
 use crate::error::{Error, Result};
-use std::{fmt, path::Path};
+use regex::Regex;
+use std::{fmt, lazy::SyncLazy, path::Path};
+
+static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
 
 pub fn trans(input: &Path) -> Result<String> {
     let file_name = input
@@ -22,8 +25,10 @@ fn find_episode_num(input: &str) -> Result<u16> {
         .filter(|s| !s.is_empty())
         .collect();
     for block in blocks {
-        if block.chars().all(char::is_numeric) {
-            return Ok(block.parse().unwrap());
+        // deal with /d+v\d+
+        if let Some(caps) = EPI_PAT.captures(block) {
+            // should never panic
+            return Ok(caps.get(1).unwrap().as_str().parse().unwrap())
         }
     }
     Err(Error::EpisodeNotFound)
@@ -83,5 +88,12 @@ mod test {
     fn trans_3() {
         let input = Path::new("1.text");
         assert_eq!(trans(input).unwrap(), "S01E01.text".to_owned());
+    }
+
+
+    #[test]
+    fn trans_4() {
+        let input = Path::new("[SweetSub&LoliHouse] Akudama Drive - 05v2 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv");
+        assert_eq!(trans(input).unwrap(), "S01E05.mkv".to_owned());
     }
 }

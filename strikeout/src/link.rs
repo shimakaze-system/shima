@@ -26,6 +26,8 @@ pub fn map_to_dest(file: &Path, src: &Path, dest: &Path) -> PathBuf {
 pub fn link_to(from: &Path, dest: &Path) -> Result<()> {
     let dir = dest.parent().expect("Error: root file");
     fs::create_dir_all(dir).ok();
+    // use at risk
+    fs::remove_file(dest).ok();
     fs::hard_link(from, dest)?;
     Ok(())
 }
