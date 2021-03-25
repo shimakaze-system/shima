@@ -28,7 +28,7 @@ fn find_episode_num(input: &str) -> Result<u16> {
         // deal with /d+v\d+
         if let Some(caps) = EPI_PAT.captures(block) {
             // should never panic
-            return Ok(caps.get(1).unwrap().as_str().parse().unwrap())
+            return Ok(caps.get(1).unwrap().as_str().parse().unwrap());
         }
     }
     Err(Error::EpisodeNotFound)
@@ -89,7 +89,6 @@ mod test {
         let input = Path::new("1.text");
         assert_eq!(trans(input).unwrap(), "S01E01.text".to_owned());
     }
-
 
     #[test]
     fn trans_4() {
