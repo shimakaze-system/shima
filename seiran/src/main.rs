@@ -12,7 +12,7 @@ async fn run(config: Config<'static>) -> anyhow::Result<()> {
     let cache_dir = config.cache_dir();
     let install_dir = config.install_dir();
     println!(
-        "{}\ndata: {}\ncache: {}\ninstall: {}",
+        "{}\ndata dir: {}\ncache dir: {}\ninstall dir: {}",
         "::<> Check config.".blue(),
         data_dir.to_string_lossy().cyan(),
         cache_dir.to_string_lossy().cyan(),
