@@ -10,8 +10,18 @@ pub fn trans(input: &Path) -> Result<String> {
         .map(|s| s.to_str())
         .flatten()
         .ok_or(Error::InvalidUnicodeFilename)?;
+    // use input as anime name
+    let anime = input
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|anime| anime.to_str());
     let episode = find_episode_num(file_name)?;
-    let mut name = Name::new(episode, 1).to_string();
+    let mut name = if let Some(anime) = anime {
+        format!("{} {}", anime, episode)
+    } else {
+        // use S01E** as a fallback
+        Name::new(episode, 1).to_string()
+    };
     if let Some(extension) = input.extension().map(|s| s.to_str()).flatten() {
         name.push('.');
         name.push_str(extension);
@@ -94,5 +104,11 @@ mod test {
     fn trans_4() {
         let input = Path::new("[SweetSub&LoliHouse] Akudama Drive - 05v2 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv");
         assert_eq!(trans(input).unwrap(), "S01E05.mkv".to_owned());
+    }
+
+    #[test]
+    fn trans_5() {
+        let input = Path::new("Akudama Drive/[SweetSub&LoliHouse] Akudama Drive - 05 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv");
+        assert_eq!(trans(input).unwrap(), "Akudama Drive 5.mkv".to_owned());
     }
 }
