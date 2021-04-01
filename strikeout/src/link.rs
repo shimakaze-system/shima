@@ -10,13 +10,14 @@ use std::{
 /// expect result: "d/b/S01E01.text"
 pub fn map_to_dest(file: &Path, src: &Path, dest: &Path) -> PathBuf {
     let mut path = PathBuf::from(dest);
-    let file_name: PathBuf = file.file_name().expect("Error: file name Not found").into();
+    // inner path "b/01.text"
     let inner_path = file.strip_prefix(src).expect("Error: find files not in src");
     path.push(inner_path.parent().expect("Error: root file"));
-    if let Ok(transfered_file_name) = transfer::trans(&file_name) {
+    if let Ok(transfered_file_name) = transfer::trans(&file) {
         path.push(transfered_file_name);
     } else {
         // just use original name when can not parse
+        let file_name = file.file_name().expect("Error: file name Not found");
         path.push(file_name);
     }
     path
