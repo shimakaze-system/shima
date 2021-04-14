@@ -2,7 +2,7 @@ name: Strikeout
 on:
   push:
     paths:
-      - "strikeout/*"
+      - "strikeout/**"
   
 jobs:
   test:
