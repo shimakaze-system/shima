@@ -1,14 +1,10 @@
 use crate::error::{Error, Result};
-use regex::Regex;
-use std::{fmt, lazy::SyncLazy, path::Path};
-
-static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
+use std::{fmt, path::Path};
 
 pub fn trans(input: &Path) -> Result<String> {
     let file_name = input
         .file_stem()
-        .map(|s| s.to_str())
-        .flatten()
+        .and_then(|s| s.to_str())
         .ok_or(Error::InvalidUnicodeFilename)?;
     // use input as anime name
     let anime = input
@@ -29,20 +25,50 @@ pub fn trans(input: &Path) -> Result<String> {
     Ok(name)
 }
 
-fn find_episode_num(input: &str) -> Result<u16> {
-    let blocks: Vec<&str> = input
-        .split(|c| c == '[' || c == ']' || c == ' ' || c == '【' || c == '】')
-        .filter(|s| !s.is_empty())
-        .collect();
-    for block in blocks {
-        // deal with /d+v\d+
-        if let Some(caps) = EPI_PAT.captures(block) {
-            // should never panic
-            return Ok(caps.get(1).unwrap().as_str().parse().unwrap());
+mod group_rule {
+    use super::{Error, Result};
+    use regex::{Regex, RegexSet};
+    use std::lazy::SyncLazy;
+
+    static RSET: SyncLazy<RegexSet> =
+        SyncLazy::new(|| RegexSet::new(&[r"Lilith-Raws"]).expect("Fail to create regex set"));
+    static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
+    static LILITH_RAWS_PAT: SyncLazy<Regex> =
+        SyncLazy::new(|| Regex::new(r"\[.*?\] .*(\d+)([vV]\d)? (\[.*?\])+").unwrap());
+
+    pub(crate) fn find_episode_num(input: &str) -> Result<u16> {
+        let first = RSET.matches(input).into_iter().next();
+        match first {
+            Some(0) => lilith_raws(input),
+            _ => default(input),
         }
     }
-    Err(Error::EpisodeNotFound)
+
+    fn lilith_raws(input: &str) -> Result<u16> {
+        let caps = LILITH_RAWS_PAT.captures(input).expect("should not boom here");
+        if let Some(epi) = caps.get(1) {
+            return Ok(epi.as_str().parse().expect("should always success"));
+        }
+        Err(Error::EpisodeNotFound)
+    }
+
+    fn default(input: &str) -> Result<u16> {
+        let blocks: Vec<&str> = input
+            .split(|c| c == '[' || c == ']' || c == ' ' || c == '【' || c == '】')
+            .filter(|s| !s.is_empty())
+            .collect();
+        for block in blocks {
+            // deal with /d+v\d+
+            if let Some(caps) = EPI_PAT.captures(block) {
+                // should never panic
+                return Ok(caps.get(1).unwrap().as_str().parse().unwrap());
+            }
+        }
+        Err(Error::EpisodeNotFound)
+    }
 }
+
+use group_rule::find_episode_num;
 
 struct Name {
     episode: u16,
@@ -108,7 +134,16 @@ mod test {
 
     #[test]
     fn trans_5() {
-        let input = Path::new("Akudama Drive/[SweetSub&LoliHouse] Akudama Drive - 05 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv");
+        let input =
+            Path::new("Akudama Drive/[SweetSub&LoliHouse] Akudama Drive - 05 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv");
         assert_eq!(trans(input).unwrap(), "Akudama Drive 5.mkv".to_owned());
+    }
+
+    #[test]
+    fn trans_6() {
+        let input = Path::new(
+            "86―エイティシックス/[Lilith-Raws] 86 - Eighty Six - 01 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4",
+        );
+        assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
     }
 }

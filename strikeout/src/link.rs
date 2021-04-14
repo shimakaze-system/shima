@@ -43,7 +43,7 @@ mod test {
         let from = Path::new("a/b/1.text");
         let src = Path::new("a");
         let dest = Path::new("d");
-        assert_eq!(map_to_dest(&from, &src, &dest), PathBuf::from("d/b/S01E01.text"));
+        assert_eq!(map_to_dest(&from, &src, &dest), PathBuf::from("d/b/b 1.text"));
     }
 
     #[test]
@@ -51,7 +51,7 @@ mod test {
         let from = Path::new("a/1.mkv");
         let src = Path::new("a");
         let dest = Path::new("d");
-        assert_eq!(map_to_dest(&from, &src, &dest), PathBuf::from("d/S01E01.mkv"));
+        assert_eq!(map_to_dest(&from, &src, &dest), PathBuf::from("d/a 1.mkv"));
     }
 
     #[test]
