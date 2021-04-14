@@ -34,7 +34,7 @@ mod group_rule {
         SyncLazy::new(|| RegexSet::new(&[r"Lilith-Raws"]).expect("Fail to create regex set"));
     static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
     static LILITH_RAWS_PAT: SyncLazy<Regex> =
-        SyncLazy::new(|| Regex::new(r"\[.*?\] .*(\d+)([vV]\d)? (\[.*?\])+").unwrap());
+        SyncLazy::new(|| Regex::new(r"\[.*?\] .*?(\d+)([vV]\d)? (\[.*?\])+").unwrap());
 
     pub(crate) fn find_episode_num(input: &str) -> Result<u16> {
         let first = RSET.matches(input).into_iter().next();
@@ -143,6 +143,14 @@ mod test {
     fn trans_6() {
         let input = Path::new(
             "86―エイティシックス/[Lilith-Raws] 86 - Eighty Six - 01 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4",
+        );
+        assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
+    }
+
+    #[test]
+    fn trans_7() {
+        let input = Path::new(
+            "86―エイティシックス/[Lilith-Raws] 86 - Eighty Six - 01v2 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4",
         );
         assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
     }
