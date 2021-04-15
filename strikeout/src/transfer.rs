@@ -31,7 +31,7 @@ mod group_rule {
     use std::lazy::SyncLazy;
 
     static RSET: SyncLazy<RegexSet> =
-        SyncLazy::new(|| RegexSet::new(&[r"Lilith-Raws"]).expect("Fail to create regex set"));
+        SyncLazy::new(|| RegexSet::new(&[r"Lilith-Raws", r"SweetSub"]).expect("Fail to create regex set"));
     static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
     static LILITH_RAWS_PAT: SyncLazy<Regex> =
         SyncLazy::new(|| Regex::new(r"\[.*?\] .*?(\d+)([vV]\d)? (\[.*?\])+").unwrap());
@@ -39,7 +39,8 @@ mod group_rule {
     pub(crate) fn find_episode_num(input: &str) -> Result<u16> {
         let first = RSET.matches(input).into_iter().next();
         match first {
-            Some(0) => lilith_raws(input),
+            // SweetSub have same name pattern with lilith-raws
+            Some(0 | 1) => lilith_raws(input),
             _ => default(input),
         }
     }
@@ -151,6 +152,22 @@ mod test {
     fn trans_7() {
         let input = Path::new(
             "86―エイティシックス/[Lilith-Raws] 86 - Eighty Six - 01v2 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4",
+        );
+        assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
+    }
+
+    #[test]
+    fn trans_8() {
+        let input = Path::new(
+            "86―エイティシックス/[SweetSub&LoliHouse] 86 - Eighty Six - 01 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4"
+        );
+        assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
+    }
+
+    #[test]
+    fn trans_9() {
+        let input = Path::new(
+            "86―エイティシックス/[SweetSub&LoliHouse] 86 - Eighty Six - 01v2 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4"
         );
         assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
     }
