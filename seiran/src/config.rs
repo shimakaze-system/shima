@@ -47,18 +47,17 @@ impl<'a> Config<'a> {
         self.api_endpoint + "b/" + self.bucket_name + "/o"
     }
 
-    pub fn from_file(file: Cow<'a, path::Path>) -> Result<Self> {
+    pub fn from_file(file: &path::Path) -> Result<Self> {
         let mut file = fs::File::open(file)?;
         let mut content = String::new();
         file.read_to_string(&mut content)?;
         Ok(toml::from_str(&content)?)
     }
 
-    pub fn default_config_path() -> Cow<'a, path::Path> {
+    pub fn default_config_path() -> path::PathBuf {
         dirs::config_dir()
             .expect("No XDG_CONFIG_HOME setted.")
             .join(APPLICATION)
             .join("config.toml")
-            .into()
     }
 }

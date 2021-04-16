@@ -1,6 +1,10 @@
 use colored::Colorize;
 use seiran::{check_md5_sum, database, download, install, meta, Config};
-use std::io::{self, Write};
+use std::{
+    env::args,
+    io::{self, Write},
+    path::PathBuf,
+};
 
 fn failed(e: anyhow::Error) -> anyhow::Error {
     println!("{}\n", "Failed".red());
@@ -39,10 +43,14 @@ async fn run(config: Config<'static>) -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let default_path = Config::default_config_path();
-    print!("Load config from {}...", default_path.to_string_lossy().cyan());
+    let path = if let Some(path) = args().nth(1) {
+        PathBuf::from(path)
+    } else {
+        Config::default_config_path()
+    };
+    print!("Load config from {}...", path.to_string_lossy().cyan());
     io::stdout().flush().unwrap();
-    let config = Config::from_file(default_path).map_err(failed)?;
+    let config = Config::from_file(&path).map_err(failed)?;
     println!("{}", "OK".green());
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(run(config))?;
