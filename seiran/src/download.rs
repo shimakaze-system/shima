@@ -26,8 +26,8 @@ pub async fn download(target: &meta::Meta, desc: Cow<'_, path::Path>) -> anyhow:
         }
         file.sync_all()?;
         println!("{}", "OK".green());
-        return Ok(file);
+        Ok(file)
     } else {
-        return Err(anyhow::Error::msg("Error fetching file!"));
+        Err(anyhow::Error::msg("Error fetching file!"))
     }
 }
