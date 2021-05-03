@@ -39,8 +39,10 @@ mod group_rule {
     pub(crate) fn find_episode_num(input: &str) -> Result<u16> {
         let first = RSET.matches(input).into_iter().next();
         match first {
+            // lilith_raws
+            Some(0) => lilith_raws(input),
             // SweetSub have same name pattern with lilith-raws
-            Some(0 | 1) => lilith_raws(input),
+            Some(1) => lilith_raws(input),
             _ => default(input),
         }
     }
