@@ -12,7 +12,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
       - name: Install nightly toolchain with clippy available
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install nightly toolchain with rustfmt available
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly
