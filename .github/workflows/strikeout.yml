@@ -18,7 +18,7 @@ jobs:
           toolchain: nightly
           override: true
       - name: Run cargo test
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1.0.3
         with:
           command: test
           args: --manifest-path=strikeout/Cargo.toml
@@ -37,7 +37,7 @@ jobs:
           override: true
           components: clippy
       - name: Run cargo clippy
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1.0.3
         with:
           command: clippy
           args: --manifest-path=strikeout/Cargo.toml -- -D warnings
@@ -58,7 +58,7 @@ jobs:
           components: rustfmt
 
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1.0.3
         with:
           command: fmt
           args: --manifest-path=strikeout/Cargo.toml -- --check 
