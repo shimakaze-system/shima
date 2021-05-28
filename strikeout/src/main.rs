@@ -61,8 +61,7 @@ fn main() {
     }
     // index mode
     if index {
-        index_mode(&src);
-        return;
+        return index_mode(&src);
     }
     // get file list
     let mut file_set = scan::get_file_list()
