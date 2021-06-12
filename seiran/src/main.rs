@@ -32,11 +32,11 @@ async fn run(config: Config<'static>) -> anyhow::Result<()> {
     }
     for meta in delta.iter() {
         let file = download(meta, cache_dir.clone()).await.map_err(failed)?;
-        if !check_md5_sum(file, &meta).map_err(failed)? {
+        if !check_md5_sum(file, meta).map_err(failed)? {
             println!("{}", "Exited".red());
             return Err(anyhow::Error::msg("Check_sum failed."));
         }
-        install(&meta, cache_dir.clone(), install_dir.clone()).map_err(failed)?;
+        install(meta, cache_dir.clone(), install_dir.clone()).map_err(failed)?;
     }
     database::save(data_dir.clone(), data)?;
     Ok(())
