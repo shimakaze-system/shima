@@ -1,7 +1,7 @@
 use crate::meta;
-use colored::*;
+use colored::Colorize;
 use futures_util::StreamExt;
-use std::{borrow::Cow, fs, io, io::prelude::*, os::unix::fs::PermissionsExt, path};
+use std::{borrow::Cow, fs, io, io::prelude::Write, os::unix::fs::PermissionsExt, path};
 
 pub async fn download(target: &meta::Meta, desc: Cow<'_, path::Path>) -> anyhow::Result<fs::File> {
     // create cache dir
