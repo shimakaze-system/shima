@@ -13,7 +13,7 @@ pub fn map_to_dest(file: &Path, src: &Path, dest: &Path) -> PathBuf {
     // inner path "b/01.text"
     let inner_path = file.strip_prefix(src).expect("Error: find files not in src");
     path.push(inner_path.parent().expect("Error: root file"));
-    if let Ok(transfered_file_name) = transfer::trans(&file) {
+    if let Ok(transfered_file_name) = transfer::trans(file) {
         path.push(transfered_file_name);
     } else {
         // just use original name when can not parse
