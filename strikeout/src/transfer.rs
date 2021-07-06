@@ -27,14 +27,13 @@ pub fn trans(input: &Path) -> Result<String> {
 
 mod group_rule {
     use super::{Error, Result};
+    use once_cell::sync::Lazy;
     use regex::{Regex, RegexSet};
-    use std::lazy::SyncLazy;
 
-    static RSET: SyncLazy<RegexSet> =
-        SyncLazy::new(|| RegexSet::new(&[r"Lilith-Raws", r"SweetSub"]).expect("Fail to create regex set"));
-    static EPI_PAT: SyncLazy<Regex> = SyncLazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
-    static LILITH_RAWS_PAT: SyncLazy<Regex> =
-        SyncLazy::new(|| Regex::new(r"\[.*?\] .*?(\d+)([vV]\d)? (\[.*?\])+").unwrap());
+    static RSET: Lazy<RegexSet> =
+        Lazy::new(|| RegexSet::new(&[r"Lilith-Raws", r"SweetSub"]).expect("Fail to create regex set"));
+    static EPI_PAT: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
+    static LILITH_RAWS_PAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[.*?\] .*?(\d+)([vV]\d)? (\[.*?\])+").unwrap());
 
     pub(crate) fn find_episode_num(input: &str) -> Result<u16> {
         let first = RSET.matches(input).into_iter().next();

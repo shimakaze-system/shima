@@ -53,7 +53,7 @@ pub fn get_file_list() -> Result<HashSet<String>> {
 }
 
 pub fn store_file_list(old_file_list: &HashSet<String>) -> Result<()> {
-    let file = fs::File::with_options()
+    let file = fs::OpenOptions::new()
         .truncate(true)
         .write(true)
         .create(true)
