@@ -39,15 +39,22 @@ mod group_rule {
         let first = RSET.matches(input).into_iter().next();
         match first {
             // lilith_raws
-            Some(0) => lilith_raws(input),
+            Some(0) => fallback_to_default(input, lilith_raws),
             // SweetSub have same name pattern with lilith-raws
-            Some(1) => lilith_raws(input),
+            Some(1) => fallback_to_default(input, lilith_raws),
             _ => default(input),
         }
     }
 
+    fn fallback_to_default<F: Fn(&str) -> Result<u16>>(input: &str, handle: F) -> Result<u16> {
+        match handle(input) {
+            Ok(epi) => Ok(epi),
+            Err(_) => default(input),
+        }
+    }
+
     fn lilith_raws(input: &str) -> Result<u16> {
-        let caps = LILITH_RAWS_PAT.captures(input).expect("should not boom here");
+        let caps = LILITH_RAWS_PAT.captures(input).ok_or(Error::EpisodeNotFound)?;
         if let Some(epi) = caps.get(1) {
             return Ok(epi.as_str().parse().expect("should always success"));
         }
