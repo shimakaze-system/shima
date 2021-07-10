@@ -31,7 +31,7 @@ mod group_rule {
     use regex::{Regex, RegexSet};
 
     static RSET: Lazy<RegexSet> =
-        Lazy::new(|| RegexSet::new(&[r"Lilith-Raws", r"SweetSub"]).expect("Fail to create regex set"));
+        Lazy::new(|| RegexSet::new(&[r"Lilith-Raws", r"SweetSub", r"NC-Raws"]).expect("Fail to create regex set"));
     static EPI_PAT: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^(\d+)([Vv]\d+)?$"#).unwrap());
     static LILITH_RAWS_PAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[.*?\] .*?(\d+)([vV]\d)? (\[.*?\])+").unwrap());
 
@@ -40,8 +40,10 @@ mod group_rule {
         match first {
             // lilith_raws
             Some(0) => fallback_to_default(input, lilith_raws),
-            // SweetSub have same name pattern with lilith-raws
+            // SweetSub has same name pattern with lilith-raws
             Some(1) => fallback_to_default(input, lilith_raws),
+            // NC-Raws has same name pattern with lilith-raws
+            Some(2) => fallback_to_default(input, lilith_raws),
             _ => default(input),
         }
     }
@@ -178,5 +180,13 @@ mod test {
             "86―エイティシックス/[SweetSub&LoliHouse] 86 - Eighty Six - 01v2 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4].mp4"
         );
         assert_eq!(trans(input).unwrap(), "86―エイティシックス 1.mp4".to_owned());
+    }
+
+    #[test]
+    fn trans_10() {
+        let input = Path::new(
+            "迷宮ブラックカンパニー/[NC-Raws] 异世界迷宫黑心企业 - 01 [B-Global][WEB-DL][2160p][AVC AAC][CHS_CHT_ENG_TH_SRT].mkv"
+        );
+        assert_eq!(trans(input).unwrap(), "迷宮ブラックカンパニー 1.mkv".to_owned());
     }
 }
