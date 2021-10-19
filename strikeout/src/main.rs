@@ -1,11 +1,11 @@
-use clap::Clap;
+use clap::Parser;
 use std::{
     env,
     path::{Path, PathBuf},
 };
 use strikeout::{link, scan};
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version=clap::crate_version!(), author=clap::crate_authors!())]
 struct Opts {
     /// source dir
